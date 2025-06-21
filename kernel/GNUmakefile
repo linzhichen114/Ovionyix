@@ -4,13 +4,13 @@ MAKEFLAGS += -rR
 
 # This is the name that our final executable will have.
 # Change as needed.
-override OUTPUT := kernel
+override OUTPUT := oxImage
 
 # Install prefix; /usr/local is a good, standard default pick.
 PREFIX := /usr/local
 
 # User controllable C compiler command.
-CC := cc
+CC := clang
 
 # User controllable C flags.
 CFLAGS := -g -O2 -pipe
@@ -27,7 +27,7 @@ LDFLAGS :=
 # Ensure the dependencies have been obtained.
 ifneq ($(shell ( test '$(MAKECMDGOALS)' = clean || test '$(MAKECMDGOALS)' = distclean ); echo $$?),0)
     ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -f src/limine.h ); echo $$?),0)
-        $(error Please run the ./get-deps script first)
+        $(error Please run the ./get-deps script first!)
     endif
 endif
 
@@ -59,7 +59,9 @@ override CFLAGS += \
     -mno-sse \
     -mno-sse2 \
     -mno-red-zone \
-    -mcmodel=kernel
+    -mcmodel=kernel \
+    -I include \
+    -I ../libos-terminal
 
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \

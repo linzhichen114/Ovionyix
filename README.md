@@ -1,27 +1,28 @@
-# Limine C Template
+# Ovionyix
 
-This repository will demonstrate how to set up a basic x86-64 kernel in C using Limine.
+## BUILD
 
-It is recommended to cross reference the contents of this repository with [the Limine Bare Bones](https://osdev.wiki/wiki/Limine_Bare_Bones) OSDev wiki page.
+### DEPENDENCIES
+You need install these in your operating system: 
+ - GNU make,
+ - a C compiler,
+ - QEMU,
+ - curl,
+ - git,
+ - NASM,
+ - GNU as,
+ - and xorriso.
 
-## How to use this?
+### COMPILE
 
-### Dependencies
+#### MAKEFILE TARGETS
+all: Make a live ISO named `Ovionyix.iso`.
+run: Run `make all` and run as BIOS mode.
+run-uefi: Run `make all` and run as UEFI mode.
+clean: Clean `oxImage` and remove ISO cache.
+distclean: Run `make clean` and remove dependencies.
+> Note: If you want only, run `make -C kernel all`, this operation
+> will make kernel in [`kernel/bin/oxImage`](kernel/bin/oxImage).
 
-Any `make` command depends on GNU make (`gmake`) and is expected to be run using it. This usually means using `make` on most GNU/Linux distros, or `gmake` on other non-GNU systems.
-
-All `make all*` targets depend on a GNU-compatible C toolchain capable of generating x86-64 ELF objects. Usually `gcc/binutils` or `clang/llvm/lld` provided by any x86-64 UNIX like (including Linux) distribution will suffice.
-
-Additionally, building an ISO with `make all` requires `xorriso`, and building a HDD/USB image with `make all-hdd` requires `sgdisk` (usually from `gdisk` or `gptfdisk` packages) and `mtools`.
-
-### Makefile targets
-
-Running `make all` will compile the kernel (from the `kernel/` directory) and then generate a bootable ISO image.
-
-Running `make all-hdd` will compile the kernel and then generate a raw image suitable to be flashed onto a USB stick or hard drive/SSD.
-
-Running `make run` will build the kernel and a bootable ISO (equivalent to make all) and then run it using `qemu` (if installed).
-
-Running `make run-hdd` will build the kernel and a raw HDD image (equivalent to make all-hdd) and then run it using `qemu` (if installed).
-
-The `run-uefi` and `run-hdd-uefi` targets are equivalent to their non `-uefi` counterparts except that they boot `qemu` using a UEFI-compatible firmware.
+## CONTRIBUTING
+For contributing, please read [CONTRIBUTING.md](CONTRIBUTING.md).
