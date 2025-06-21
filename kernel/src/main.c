@@ -3,8 +3,10 @@
 #include <stdbool.h>
 #include <limine.h>
 
-#include "../../../../../usr/include/stdlib.h"
 #include "krnlibc.h"
+
+#define TERMINAL_EMBEDDED_FONT
+#include "os_terminal.h"
 
 // Set the base revision to 3, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -25,7 +27,6 @@ static volatile struct limine_framebuffer_request framebuffer_request = {
 };
 
 // Finally, define the start and end markers for the Limine requests.
-// These can also be moved anywhere, to any .c file, as seen fit.
 
 __attribute__((used, section(".limine_requests_start")))
 static volatile LIMINE_REQUESTS_START_MARKER;
@@ -56,15 +57,32 @@ void kmain(void) {
     }
 
     // Fetch the first framebuffer.
-    struct limine_framebuffer *framebuffer = framebuffer_request.response->framebuffers[0];
+    struct limine_framebuffer *fb = framebuffer_request.response->framebuffers[0];
 
-    // Note: we assume the framebuffer model is RGB with 32-bit pixels.
-    for (size_t i = 0; i < 100; i++) {
-        volatile uint32_t *fb_ptr = framebuffer->address;
-        fb_ptr[i * (framebuffer->pitch / 4) + i] = 0xffffff;
-    }
+    mem_init((void *)0x100000, 1024 * 1024);
+    
+    TerminalDisplay display = {
+        .width = fb->width,
+        .height = fb->height,
+        .buffer = (uint32_t*)fb->address,
+        .pitch = fb->pitch,
+        .red_mask_size = fb->red_mask_size,
+        .red_mask_shift = fb->red_mask_shift,
+        .green_mask_size = fb->green_mask_size,
+        .green_mask_shift = fb->green_mask_shift,
+        .blue_mask_size = fb->blue_mask_size,
+        .blue_mask_shift = fb->blue_mask_shift
+    };
 
+    terminal_init(&display, 14.0f, kmalloc, kfree);
+    terminal_process("\x1B[1;32mLimine Terminal Ready!\x1B[0m\r\n");
+    // // Note: we assume the framebuffer model is RGB with 32-bit pixels.
+    // for (size_t i = 0; i < 100; i++) {
+    //     volatile uint32_t *fb_ptr = framebuffer->address;
+    //     fb_ptr[i * (framebuffer->pitch / 4) + i] = 0xffffff;
+    // }
 
+    terminal_destroy();
     // We're done, just hang...
     hcf();
 }

@@ -46,6 +46,7 @@ override CFLAGS += \
     -Wextra \
     -std=gnu11 \
     -nostdinc \
+    -fuse-ld=lld \
     -ffreestanding \
     -fno-stack-protector \
     -fno-stack-check \
@@ -60,8 +61,8 @@ override CFLAGS += \
     -mno-sse2 \
     -mno-red-zone \
     -mcmodel=kernel \
-    -I include \
-    -I ../libos-terminal
+    -Llibos-terminal/target/x86_64-unknown-none/release \
+    -Iinclude -Ilibos-terminal
 
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
@@ -106,7 +107,7 @@ all: bin/$(OUTPUT)
 # Link rules for the final executable.
 bin/$(OUTPUT): GNUmakefile linker.ld $(OBJ)
 	mkdir -p "$$(dirname $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -los_terminal -o $@
 
 # Compilation rules for *.c files.
 obj/%.c.o: %.c GNUmakefile

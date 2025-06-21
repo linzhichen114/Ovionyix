@@ -2,6 +2,7 @@
 /.cache
 /freestnd-c-hdrs
 /cc-runtime
+/libos-terminal
 /src/limine.h
 /bin
 /obj

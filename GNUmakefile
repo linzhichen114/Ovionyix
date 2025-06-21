@@ -34,13 +34,15 @@ run-uefi: ovmf/ovmf-code-x86_64.fd $(IMAGE_NAME).iso
 		-boot d \
 		$(QEMUFLAGS)
 
+OVMF = https://github.com/osdev0/edk2-ovmf-nightly/releases/latest/download/ovmf-code-x86_64.fd
 ovmf/ovmf-code-x86_64.fd:
 	mkdir -p ovmf
-	curl -Lo $@ https://github.com/osdev0/edk2-ovmf-nightly/releases/latest/download/ovmf-code-x86_64.fd
+	curl -Lo $@ $(OVMF)
 
+LIMINE = https://github.com/limine-bootloader/limine.git
 limine/limine:
 	rm -rf limine
-	git clone https://github.com/limine-bootloader/limine.git --branch=v9.x-binary --depth=1
+	git clone $(LIMINE) --branch=v9.x-binary --depth=1
 	$(MAKE) -C limine \
 		CC="$(HOST_CC)" \
 		CFLAGS="$(HOST_CFLAGS)" \
@@ -48,12 +50,9 @@ limine/limine:
 		LDFLAGS="$(HOST_LDFLAGS)" \
 		LIBS="$(HOST_LIBS)"
 
-libos-terminal/os_terminal.h:
-	mkdir -p libos-terminal
-	curl -Lo $@ https://github.com/plos-clan/libos-terminal/releases/latest/download/os_terminal.h
-
+LIBOS_TERMINAL=git@github.com:plos-clan/libos-terminal.git
 kernel-deps:
-	./kernel/get-deps
+	./kernel/get-deps $(LIBOS_TERMINAL)
 	touch kernel-deps
 
 .PHONY: kernel
@@ -85,4 +84,4 @@ clean:
 .PHONY: distclean
 distclean: clean
 	$(MAKE) -C kernel distclean
-	rm -rf kernel-deps limine ovmf
+	rm -rf kernel-deps limine ovmf libos-terminal

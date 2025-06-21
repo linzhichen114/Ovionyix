@@ -1,7 +1,6 @@
 /kernel-deps
 /limine
 /ovmf
-/libos-terminal
 *.iso
 /.vscode
 /.idea
