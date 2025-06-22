@@ -59,8 +59,8 @@ void kmain(void) {
     // Fetch the first framebuffer.
     struct limine_framebuffer *fb = framebuffer_request.response->framebuffers[0];
 
-    mem_init((void *)0x100000, 1024 * 1024);
-    
+    mem_init((void *)0x200000, 1024 * 1024);
+
     TerminalDisplay display = {
         .width = fb->width,
         .height = fb->height,

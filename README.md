@@ -1,8 +1,9 @@
 # Ovionyix
+Ovionyix is a Unix-like operating system. ~~(Developing)~~
 
-## BUILD
+## Build
 
-### DEPENDENCIES
+### Dependencies
 You need install these in your operating system: 
  - GNU make
  - a C compiler
@@ -13,19 +14,20 @@ You need install these in your operating system:
  - xorriso
  - Rust Nightly toolchain (for libos-terminal)
 
-### COMPILE
+### Compile
 
-#### MAKEFILE TARGETS
+#### Makefile Targets
 all: Make a live ISO named `Ovionyix.iso`.
 run: Run `make all` and run as BIOS mode.
 run-uefi: Run `make all` and run as UEFI mode.
-clean: Clean `oxImage` and remove ISO cache.
+clean: Delete `oxImage` and remove ISO cache.
 distclean: Run `make clean` and remove dependencies.
 > Note: If you want only, run `make -C kernel all`, this operation
 > will make kernel in [`kernel/bin/oxImage`](kernel/bin/oxImage).
+> Build for fun? Just run `make run` or `make run-uefi`.
 
-#### JUST BUILD FOR FUN?
-Run `make run` or `make run-uefi` work fast.
-
-## CONTRIBUTING
+## Contributing
 For contributing, please read [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Last
+<small>Finally, Ovionyix's name is from DeepSeek-R1 large language model :P</small>
