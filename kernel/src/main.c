@@ -12,6 +12,7 @@
 #include <limine.h>
 
 #include "strdraw.h"
+#include "krnlibc.h"
 
 __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(0);
 __attribute__((used, section(".limine_requests")))
@@ -42,7 +43,7 @@ void kmain(void) {
     }
 
     const char *message = "Hello world!";
-    int start_x = (fb->width - 12 * 9) / 2;
+    int start_x = (fb->width - strlen(message) * 9) / 2;
     int start_y = (fb->height - 114) / 2; // 字体高度16像素
 
     draw_string(fb, message, start_x, start_y, 0xFFFFFF); // 白色文本
