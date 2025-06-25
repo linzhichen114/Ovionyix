@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "../freestnd-c-hdrs/stdint.h"
-#include "../freestnd-c-hdrs/stddef.h"
+#include "stdint.h"
+#include "stddef.h"
 
 void *memcpy(void *restrict dest, const void *restrict src, size_t n) {
     uint8_t *restrict pdest = (uint8_t *restrict)dest;
@@ -70,4 +70,15 @@ size_t strlen(const char *str) {
         length++;
     }
     return length;
+}
+
+char* strcpy(char *dest, const char *src) {
+    char *original_dest = dest;
+    while (*src != '\0') {
+        *dest = *src;
+        dest++;
+        src++;
+    }
+    *dest = '\0';
+    return original_dest;
 }

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "../freestnd-c-hdrs/stdint.h"
+#include "stdint.h"
 
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16

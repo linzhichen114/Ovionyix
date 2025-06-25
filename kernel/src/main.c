@@ -12,7 +12,7 @@
 #include <limine.h>
 
 #include "printk.h"
-#include "krnlibc.h"
+#include "ovionyix.h"
 
 __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(0);
 __attribute__((used, section(".limine_requests")))
@@ -34,22 +34,10 @@ void kmain(void) {
     }
     struct limine_framebuffer *fb = framebuffer_response->framebuffers[0];  // Get the first framebuffer
 
-    for (uint64_t y = 0; y < fb->height; y++) {
-        for (uint64_t x = 0; x < fb->width; x++) {
-            uint32_t *pixel = (uint32_t*)((uint8_t*)fb->address + y * fb->pitch + x * (fb->bpp / 8));
-            *pixel = 0x000000; // Black background
-        }
-    }
-
-    const char *message = "~ #";
-    int start_x = (fb->width - strlen(message) * 9) / 2;
-    int start_y = (fb->height - 16) / 2; // 字体高度16像素
-
-    draw_string(fb, message, start_x, start_y, 0xFFFFFF); // 白色文本
-
-    // 绘制补充信息
-    draw_string(fb, "OS DEVELOPMENT", start_x, start_y + 30, 0x00FF00); // 绿色文本
-    draw_string(fb, "FRAMEBUFFER: OK", start_x, start_y + 50, 0x00FFFF); // 青色文本
+    printk_init(fb->address, fb->width, fb->height, fb->pitch, fb->bpp);
+    printk("Ovionyix version %s (%s version %s) #1 SMP %s %s\n", KERNL_VERS, COMPILER_NAME, COMPILER_VERSION, BUILD_DATE,
+           BUILD_TIME);
+    printk("Framebuffer %p, resolution = %dx%d\n", fb->address, fb->width, fb->height);
 
     // Halt forever
     for (;;) {
