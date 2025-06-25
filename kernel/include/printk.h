@@ -1,4 +1,4 @@
-/* ==> .../kernel/include/strdraw.h
+/* ==> .../kernel/include/printk.h
  *  -> Draw string and character to screen.
  *
  * --------------------------------------------------
@@ -8,6 +8,8 @@
  */
 
 #pragma once
+
+#include <stdarg.h>
 
 #include "../freestnd-c-hdrs/stdint.h"
 #include "../src/limine.h"
@@ -24,7 +26,6 @@ void draw_char(struct limine_framebuffer *fb, char c, int x, int y, uint32_t col
         for (int col = 0; col < 8; col++) {
             // 检查每个位 (MSB first)
             if (row_data & (1 << (7 - col))) {
-                // 计算像素位置
                 uint32_t *pixel = (uint32_t*)((uint8_t*)fb->address +
                                             (y + row) * fb->pitch +
                                             (x + col) * (fb->bpp / 8));
@@ -40,3 +41,7 @@ void draw_string(struct limine_framebuffer *fb, const char *str, int x, int y, u
         draw_char(fb, str[i], x + i * 9, y, color); // 9像素宽 (8+1间隔)
     }
 }
+
+void printk_init(void *fb_addr, uint64_t width, uint64_t height, uint64_t pitch, uint16_t bpp);
+void printk(const char *fmt, ...);
+void printk_va(const char *fmt, va_list args);

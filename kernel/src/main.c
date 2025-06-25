@@ -11,7 +11,7 @@
 #include <stddef.h>
 #include <limine.h>
 
-#include "strdraw.h"
+#include "printk.h"
 #include "krnlibc.h"
 
 __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(0);
@@ -20,7 +20,6 @@ static volatile struct limine_framebuffer_request framebuffer_request = {
     .id = LIMINE_FRAMEBUFFER_REQUEST,
     .revision = 0
 };
-
 __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
 __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
 
@@ -42,9 +41,9 @@ void kmain(void) {
         }
     }
 
-    const char *message = "Hello world!";
+    const char *message = "~ #";
     int start_x = (fb->width - strlen(message) * 9) / 2;
-    int start_y = (fb->height - 114) / 2; // 字体高度16像素
+    int start_y = (fb->height - 16) / 2; // 字体高度16像素
 
     draw_string(fb, message, start_x, start_y, 0xFFFFFF); // 白色文本
 

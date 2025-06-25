@@ -1,9 +1,16 @@
+/* ==> .../kernel/include/krnlibc.h
+ *  -> A file contain memcpy, memset, etc.
+ *
+ * --------------------------------------------------
+ *
+ * By linzhichen114, write on 2025-6-25
+ * Copyright © 2025 linzhichen114 and contributors, Based on GPL-3.0 open source agreement.
+ */
+
 #pragma once
 
 #include "../freestnd-c-hdrs/stdint.h"
 #include "../freestnd-c-hdrs/stddef.h"
-
-// DO NOT remove or rename these functions (memcpy, memset, memmove and memcmp), or stuff will eventually break!
 
 void *memcpy(void *restrict dest, const void *restrict src, size_t n) {
     uint8_t *restrict pdest = (uint8_t *restrict)dest;
