@@ -5,8 +5,8 @@ The Ovionyix kernel is in folder [`kernel`](kernel).
 > Note: You need to know, _this is a Unix-like OS_, not a stand-alone OS.
 
 ### 1.1. Assembly
-`*.asm`: Intel syntax and compile with NASM.
-`*.S`: AT&T syntax and compile with GNU as.
+`*.asm`: Intel syntax and compile with NASM. \
+`*.S`: AT&T syntax and compile with GNU as. \
 We recommend to use AT&T syntax.
 
 ---
