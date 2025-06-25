@@ -23,8 +23,7 @@ run-uefi: Run `make all` and run as UEFI mode.
 clean: Delete `oxImage` and remove ISO cache.
 distclean: Run `make clean` and remove dependencies.
 > Note: If you want only, run `make -C kernel all`, this operation
-> will make kernel in [`kernel/bin/oxImage`](kernel/bin/oxImage).
-> Build for fun? Just run `make run` or `make run-uefi`.
+> will make kernel in [`kernel/bin/Image`](kernel/bin/Image).
 
 ## Contributing
 For contributing, please read [CONTRIBUTING.md](CONTRIBUTING.md).

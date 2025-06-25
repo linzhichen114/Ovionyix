@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
+#include "../freestnd-c-hdrs/stdint.h"
+#include "../freestnd-c-hdrs/stddef.h"
 
 // DO NOT remove or rename these functions (memcpy, memset, memmove and memcmp), or stuff will eventually break!
 
@@ -55,4 +55,12 @@ int memcmp(const void *s1, const void *s2, size_t n)
     }
 
     return 0;
+}
+
+size_t strlen(const char *str) {
+    size_t length = 0;
+    while (str[length] != '\0') {
+        length++;
+    }
+    return length;
 }

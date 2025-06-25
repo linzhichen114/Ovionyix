@@ -1,50 +1,58 @@
+/* ==> .../kernel/src/main.c
+ *  -> The kernel entry.
+ *
+ * --------------------------------------------------
+ *
+ * By linzhichen114, write on 2025-6-25
+ * Copyright © 2025 linzhichen114 and contributors, Based on GPL-3.0 open source agreement.
+ */
+
 #include <stdint.h>
-#include <stdbool.h>
+#include <stddef.h>
 #include <limine.h>
 
-__attribute__((used, section(".limine_requests")))       static volatile LIMINE_BASE_REVISION(0);
-__attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
-__attribute__((used, section(".limine_requests_end")))   static volatile LIMINE_REQUESTS_END_MARKER;
+#include "strdraw.h"
 
-// 现代 Limine 终端请求结构
-static volatile struct limine_terminal *terminal = NULL;
-
-// 终端回调函数
-static void terminal_callback(struct limine_terminal *term,
-                              uint64_t type,
-                              uint64_t arg1,
-                              uint64_t arg2,
-                              uint64_t arg3) {
-    // 保存终端引用
-    terminal = term;
-}
-
-// 现代终端请求
-static volatile struct limine_terminal_request terminal_request = {
-    .id = LIMINE_TERMINAL_REQUEST,
-    .revision = 0,
-    .callback = terminal_callback
+__attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(0);
+__attribute__((used, section(".limine_requests")))
+static volatile struct limine_framebuffer_request framebuffer_request = {
+    .id = LIMINE_FRAMEBUFFER_REQUEST,
+    .revision = 0
 };
 
-// 内核入口点
+__attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+__attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+
 void kmain(void) {
-    // 验证基本修订版支持
     if (!LIMINE_BASE_REVISION_SUPPORTED) {
-      while (1) __asm__("hlt");
+        __builtin_unreachable();
     }
 
-    // 检查终端是否可用
-    if (terminal == NULL) {
-      while (1) __asm__("hlt");
+    struct limine_framebuffer_response *framebuffer_response = framebuffer_request.response;
+    if (framebuffer_response == NULL || framebuffer_response->framebuffer_count < 1) {
+        __builtin_unreachable();
+    }
+    struct limine_framebuffer *fb = framebuffer_response->framebuffers[0];  // Get the first framebuffer
+
+    for (uint64_t y = 0; y < fb->height; y++) {
+        for (uint64_t x = 0; x < fb->width; x++) {
+            uint32_t *pixel = (uint32_t*)((uint8_t*)fb->address + y * fb->pitch + x * (fb->bpp / 8));
+            *pixel = 0x000000; // Black background
+        }
     }
 
-    // 使用现代写入函数
-    const char *msg = "\e[32mM1 Milestone Reached! (Modern Limine API)\n\e[0m";
-    struct limine_terminal *term = terminal;
+    const char *message = "Hello world!";
+    int start_x = (fb->width - 12 * 9) / 2;
+    int start_y = (fb->height - 114) / 2; // 字体高度16像素
 
-    // 直接写入终端
-    term->ops->write(term, msg, __builtin_strlen(msg));
+    draw_string(fb, message, start_x, start_y, 0xFFFFFF); // 白色文本
 
-    // 永久挂起
-    while (1) __asm__("hlt");
+    // 绘制补充信息
+    draw_string(fb, "OS DEVELOPMENT", start_x, start_y + 30, 0x00FF00); // 绿色文本
+    draw_string(fb, "FRAMEBUFFER: OK", start_x, start_y + 50, 0x00FFFF); // 青色文本
+
+    // Halt forever
+    for (;;) {
+        __asm__("hlt");
+    }
 }

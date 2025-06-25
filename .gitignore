@@ -1,6 +1,5 @@
-/kernel-deps
 /limine
 /ovmf
-*.iso
+/Ovionyix.iso
 /.vscode
 /.idea

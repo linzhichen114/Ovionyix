@@ -6,14 +6,13 @@ The Ovionyix kernel is in folder [`kernel`](kernel).
 
 ### 1.1. Assembly
 `*.asm`: Intel syntax and compile with NASM.
-`*.S`  : AT&T syntax and compile with GNU as.
+`*.S`: AT&T syntax and compile with GNU as.
 We recommend to use AT&T syntax.
 
 ---
 
 ## TODO List
- - [ ] Fix the alloc.
- - [ ] Make `printk()` available.
+_(none)_
 
 ## Code with us
 Your can [code with us via Jitsi Meet](https://meet.plos-clan.org:2000/Ovionyix).

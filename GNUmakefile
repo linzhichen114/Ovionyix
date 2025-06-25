@@ -3,7 +3,7 @@ MAKEFLAGS += -rR
 .SUFFIXES:
 
 # Default user QEMU flags. These are appended to the QEMU command calls.
-QEMUFLAGS := -m 2G
+QEMUFLAGS := -m 2G -vga virtio -serial stdio
 
 override IMAGE_NAME := Ovionyix
 
@@ -67,9 +67,9 @@ limine/limine:
 		LDFLAGS="$(HOST_LDFLAGS)" \
 		LIBS="$(HOST_LIBS)"
 
+.PHONY: kernel-deps
 kernel-deps:
 	./kernel/get-deps
-	touch kernel-deps
 
 .PHONY: kernel
 kernel: kernel-deps
@@ -78,12 +78,12 @@ kernel: kernel-deps
 $(IMAGE_NAME).iso: limine/limine kernel
 	rm -rf iso_root
 	mkdir -p iso_root/boot
-	cp -v kernel/bin/oxImage iso_root/boot/kernel
+	cp -v kernel/bin/Image iso_root/boot/kernel
 	mkdir -p iso_root/boot/limine
 	cp -v limine.conf limine/limine-bios.sys limine/limine-bios-cd.bin limine/limine-uefi-cd.bin iso_root/boot/limine/
-	mkdir -p iso_root/boot/efi/boot
-	cp -v limine/BOOTX64.EFI iso_root/boot/efi/boot
-	cp -v limine/BOOTIA32.EFI iso_root/boot/efi/boot
+	mkdir -p iso_root/boot/efi
+	cp -v limine/BOOTX64.EFI iso_root/boot/efi
+	cp -v limine/BOOTIA32.EFI iso_root/boot/efi
 	xorriso -as mkisofs -R -r -J -b boot/limine/limine-bios-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table -hfsplus \
 		-apm-block-size 2048 --efi-boot boot/limine/limine-uefi-cd.bin \
