@@ -25,6 +25,14 @@ run: $(IMAGE_NAME).iso
 		-boot d \
 		$(QEMUFLAGS)
 
+.PHONY: debug
+debug: $(IMAGE_NAME).iso
+	qemu-system-x86_64 \
+		-M q35 \
+		-cdrom $(IMAGE_NAME).iso \
+		-boot d \
+		$(QEMUFLAGS) -s -S -no-reboot
+
 .PHONY: run-uefi
 run-uefi: ovmf/ovmf-code-x86_64.fd $(IMAGE_NAME).iso
 	qemu-system-x86_64 \
@@ -33,6 +41,15 @@ run-uefi: ovmf/ovmf-code-x86_64.fd $(IMAGE_NAME).iso
 		-cdrom $(IMAGE_NAME).iso \
 		-boot d \
 		$(QEMUFLAGS)
+
+.PHONY: debug-uefi
+debug-uefi: $(IMAGE_NAME).iso
+	qemu-system-x86_64 \
+		-M q35 \
+		-drive if=pflash,unit=0,format=raw,file=ovmf/ovmf-code-x86_64.fd,readonly=on \
+		-cdrom $(IMAGE_NAME).iso \
+		-boot d \
+		$(QEMUFLAGS) -s -S -no-reboot
 
 OVMF = https://github.com/osdev0/edk2-ovmf-nightly/releases/latest/download/ovmf-code-x86_64.fd
 ovmf/ovmf-code-x86_64.fd:
@@ -50,9 +67,8 @@ limine/limine:
 		LDFLAGS="$(HOST_LDFLAGS)" \
 		LIBS="$(HOST_LIBS)"
 
-LIBOS_TERMINAL=git@github.com:plos-clan/libos-terminal.git
 kernel-deps:
-	./kernel/get-deps $(LIBOS_TERMINAL)
+	./kernel/get-deps
 	touch kernel-deps
 
 .PHONY: kernel

@@ -1,88 +1,50 @@
 #include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
 
-#include "krnlibc.h"
+__attribute__((used, section(".limine_requests")))       static volatile LIMINE_BASE_REVISION(0);
+__attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+__attribute__((used, section(".limine_requests_end")))   static volatile LIMINE_REQUESTS_END_MARKER;
 
-#define TERMINAL_EMBEDDED_FONT
-#include "os_terminal.h"
+// 现代 Limine 终端请求结构
+static volatile struct limine_terminal *terminal = NULL;
 
-// Set the base revision to 3, this is recommended as this is the latest
-// base revision described by the Limine boot protocol specification.
-// See specification for further info.
-
-__attribute__((used, section(".limine_requests")))
-static volatile LIMINE_BASE_REVISION(3);
-
-// The Limine requests can be placed anywhere, but it is important that
-// the compiler does not optimise them away, so, usually, they should
-// be made volatile or equivalent, _and_ they should be accessed at least
-// once or marked as used with the "used" attribute as done here.
-
-__attribute__((used, section(".limine_requests")))
-static volatile struct limine_framebuffer_request framebuffer_request = {
-    .id = LIMINE_FRAMEBUFFER_REQUEST,
-    .revision = 0
-};
-
-// Finally, define the start and end markers for the Limine requests.
-
-__attribute__((used, section(".limine_requests_start")))
-static volatile LIMINE_REQUESTS_START_MARKER;
-
-__attribute__((used, section(".limine_requests_end")))
-static volatile LIMINE_REQUESTS_END_MARKER;
-
-// Halt and catch fire function.
-static void hcf(void) {
-    for (;;) {
-        asm ("hlt");
-    }
+// 终端回调函数
+static void terminal_callback(struct limine_terminal *term,
+                              uint64_t type,
+                              uint64_t arg1,
+                              uint64_t arg2,
+                              uint64_t arg3) {
+    // 保存终端引用
+    terminal = term;
 }
 
-// The following will be our kernel's entry point.
-// If renaming kmain() to something else, make sure to change the
-// linker script accordingly.
+// 现代终端请求
+static volatile struct limine_terminal_request terminal_request = {
+    .id = LIMINE_TERMINAL_REQUEST,
+    .revision = 0,
+    .callback = terminal_callback
+};
+
+// 内核入口点
 void kmain(void) {
-    // Ensure the bootloader actually understands our base revision (see spec).
-    if (LIMINE_BASE_REVISION_SUPPORTED == false) {
-        hcf();
+    // 验证基本修订版支持
+    if (!LIMINE_BASE_REVISION_SUPPORTED) {
+      while (1) __asm__("hlt");
     }
 
-    // Ensure we got a framebuffer.
-    if (framebuffer_request.response == NULL
-     || framebuffer_request.response->framebuffer_count < 1) {
-        hcf();
+    // 检查终端是否可用
+    if (terminal == NULL) {
+      while (1) __asm__("hlt");
     }
 
-    // Fetch the first framebuffer.
-    struct limine_framebuffer *fb = framebuffer_request.response->framebuffers[0];
+    // 使用现代写入函数
+    const char *msg = "\e[32mM1 Milestone Reached! (Modern Limine API)\n\e[0m";
+    struct limine_terminal *term = terminal;
 
-    mem_init((void *)0x200000, 1024 * 1024);
+    // 直接写入终端
+    term->ops->write(term, msg, __builtin_strlen(msg));
 
-    TerminalDisplay display = {
-        .width = fb->width,
-        .height = fb->height,
-        .buffer = (uint32_t*)fb->address,
-        .pitch = fb->pitch,
-        .red_mask_size = fb->red_mask_size,
-        .red_mask_shift = fb->red_mask_shift,
-        .green_mask_size = fb->green_mask_size,
-        .green_mask_shift = fb->green_mask_shift,
-        .blue_mask_size = fb->blue_mask_size,
-        .blue_mask_shift = fb->blue_mask_shift
-    };
-
-    terminal_init(&display, 14.0f, kmalloc, kfree);
-    terminal_process("\x1B[1;32mLimine Terminal Ready!\x1B[0m\r\n");
-    // // Note: we assume the framebuffer model is RGB with 32-bit pixels.
-    // for (size_t i = 0; i < 100; i++) {
-    //     volatile uint32_t *fb_ptr = framebuffer->address;
-    //     fb_ptr[i * (framebuffer->pitch / 4) + i] = 0xffffff;
-    // }
-
-    terminal_destroy();
-    // We're done, just hang...
-    hcf();
+    // 永久挂起
+    while (1) __asm__("hlt");
 }

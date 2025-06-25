@@ -78,10 +78,3 @@ download_by_hash \
     https://github.com/limine-bootloader/limine/raw/4687a182be23939c2d9f15db970382dc353ed956/limine.h \
     src/limine.h \
     6879e626f34c1be25ac2f72bf43b083fc2b53887280bb0fcdaee790e258c6974
-
-rm -rf libos-terminal
-#LIBOS_TERMINAL=https://github.com/plos-clan/libos-terminal.git
-git clone "$1"
-TERMINAL_EMBEDDED_FONT=libos-terminal/fonts/FiraCodeNotoSans.ttf
-cargo -C libos-terminal -Z unstable-options build --release
-cbindgen libos-terminal --output libos-terminal/os_terminal.h

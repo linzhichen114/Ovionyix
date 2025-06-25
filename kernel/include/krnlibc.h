@@ -3,10 +3,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-// GCC and Clang reserve the right to generate calls to the following
-// 4 functions even if they are not directly called.
-// Implement them as the C specification mandates.
-// DO NOT remove or rename these functions, or stuff will eventually break!
+// DO NOT remove or rename these functions (memcpy, memset, memmove and memcmp), or stuff will eventually break!
 
 void *memcpy(void *restrict dest, const void *restrict src, size_t n) {
     uint8_t *restrict pdest = (uint8_t *restrict)dest;
@@ -59,13 +56,3 @@ int memcmp(const void *s1, const void *s2, size_t n)
 
     return 0;
 }
-
-// Memory allocation
-
-typedef struct mem_block {
-    size_t size;
-    struct mem_block *next;
-    bool is_free;
-} mem_block_t;
-
-static mem_block_t *free_list = NULL;
