@@ -4,7 +4,7 @@ MAKEFLAGS += -rR
 
 override OUTPUT := Image
 PREFIX := /usr/local
-CC := clang
+CC := gcc
 CFLAGS := -g -O2 -pipe
 CPPFLAGS :=
 NASMFLAGS := -F dwarf -g

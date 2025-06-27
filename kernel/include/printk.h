@@ -1,5 +1,5 @@
 /* ==> .../kernel/include/printk.h
-*  -> Draw string and character to screen.
+ *  -> Draw string and character to screen.
  *
  * --------------------------------------------------
  *
@@ -16,3 +16,7 @@
 void printk_init(void *fb_addr, uint64_t width, uint64_t height, uint64_t pitch, uint16_t bpp);
 void printk(const char *fmt, ...);
 void printk_va(const char *fmt, va_list args);
+
+void dump_stack();
+void dump_registers();
+void panic(const char *desp);

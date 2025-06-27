@@ -3,7 +3,7 @@ MAKEFLAGS += -rR
 .SUFFIXES:
 
 # Default user QEMU flags. These are appended to the QEMU command calls.
-QEMUFLAGS := -m 2G -vga virtio -serial stdio
+QEMUFLAGS :=
 
 override IMAGE_NAME := Ovionyix
 
@@ -23,7 +23,7 @@ run: $(IMAGE_NAME).iso
 		-M q35 \
 		-cdrom $(IMAGE_NAME).iso \
 		-boot d \
-		$(QEMUFLAGS)
+		-m 2G -vga virtio -serial stdio $(QEMUFLAGS)
 
 .PHONY: debug
 debug: $(IMAGE_NAME).iso
@@ -31,7 +31,7 @@ debug: $(IMAGE_NAME).iso
 		-M q35 \
 		-cdrom $(IMAGE_NAME).iso \
 		-boot d \
-		$(QEMUFLAGS) -s -S -no-reboot
+		-m 2G -vga virtio -serial stdio $(QEMUFLAGS) -s -S -no-reboot
 
 .PHONY: run-uefi
 run-uefi: ovmf/ovmf-code-x86_64.fd $(IMAGE_NAME).iso
@@ -40,7 +40,7 @@ run-uefi: ovmf/ovmf-code-x86_64.fd $(IMAGE_NAME).iso
 		-drive if=pflash,unit=0,format=raw,file=ovmf/ovmf-code-x86_64.fd,readonly=on \
 		-cdrom $(IMAGE_NAME).iso \
 		-boot d \
-		$(QEMUFLAGS)
+		-m 2G -vga virtio -serial stdio $(QEMUFLAGS)
 
 .PHONY: debug-uefi
 debug-uefi: $(IMAGE_NAME).iso
@@ -49,7 +49,7 @@ debug-uefi: $(IMAGE_NAME).iso
 		-drive if=pflash,unit=0,format=raw,file=ovmf/ovmf-code-x86_64.fd,readonly=on \
 		-cdrom $(IMAGE_NAME).iso \
 		-boot d \
-		$(QEMUFLAGS) -s -S -no-reboot
+		-m 2G -vga virtio -serial stdio $(QEMUFLAGS) -s -S -no-reboot
 
 OVMF = https://github.com/osdev0/edk2-ovmf-nightly/releases/latest/download/ovmf-code-x86_64.fd
 ovmf/ovmf-code-x86_64.fd:

@@ -340,3 +340,87 @@ void printk(const char *fmt, ...) {
     printk_va(fmt, args);
     va_end(args);
 }
+
+void dump_stack(void) {
+    // 定义堆栈帧结构
+    struct stack_frame {
+        struct stack_frame *next;
+        uintptr_t rip;
+    } __attribute__((packed));
+
+    struct stack_frame *rbp;
+    uintptr_t rip;
+
+    // 获取当前RBP和RIP
+    __asm__ volatile("movq %%rbp, %0" : "=r"(rbp));
+    __asm__ volatile("leaq (%%rip), %0" : "=r"(rip));
+
+    printk("Call Trace:\n");
+    printk(" <TASK>\n");
+
+    // 最多遍历16帧
+    for (int i = 0; i < 16; i++) {
+        // 检查地址有效性
+        if ((uintptr_t)rbp < 0x1000 || (uintptr_t)rbp > 0xFFFFFFFFFFFFF000) {
+            printk("  [<0x%016lx>] invalid frame\n", rip);
+            break;
+        }
+
+        // 打印当前返回地址
+        printk("  [<0x%016lx>]\n", rip);
+
+        // 移动到下一帧
+        rip = rbp->rip;
+        rbp = rbp->next;
+
+        // 检查结束条件
+        if (rip == 0 || rbp == 0) {
+            break;
+        }
+    }
+    printk(" </TASK>\n");
+}
+
+void dump_registers(void) {
+    uint64_t rax, rbx, rcx, rdx, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
+    uint64_t cr0, cr2, cr3, cr4;
+
+    // 获取通用寄存器
+    __asm__ volatile(
+        "movq %%rax, %0; movq %%rbx, %1; movq %%rcx, %2; movq %%rdx, %3;"
+        "movq %%rsi, %4; movq %%rdi, %5; movq %%r8, %6; movq %%r9, %7;"
+        "movq %%r10, %8; movq %%r11, %9; movq %%r12, %10; movq %%r13, %11;"
+        "movq %%r14, %12; movq %%r15, %13;"
+        : "=r"(rax), "=r"(rbx), "=r"(rcx), "=r"(rdx),
+          "=r"(rsi), "=r"(rdi), "=r"(r8), "=r"(r9),
+          "=r"(r10), "=r"(r11), "=r"(r12), "=r"(r13),
+          "=r"(r14), "=r"(r15)
+    );
+
+    // 获取控制寄存器
+    __asm__ volatile("movq %%cr0, %0" : "=r"(cr0));
+    __asm__ volatile("movq %%cr2, %0" : "=r"(cr2));
+    __asm__ volatile("movq %%cr3, %0" : "=r"(cr3));
+    __asm__ volatile("movq %%cr4, %0" : "=r"(cr4));
+
+    printk("Registers:\n");
+    printk("RAX: 0x%016lx RBX: 0x%016lx RCX: 0x%016lx RDX: 0x%016lx\n", rax, rbx, rcx, rdx);
+    printk("RSI: 0x%016lx RDI: 0x%016lx R8:  0x%016lx R9:  0x%016lx\n", rsi, rdi, r8, r9);
+    printk("R10: 0x%016lx R11: 0x%016lx R12: 0x%016lx R13: 0x%016lx\n", r10, r11, r12, r13);
+    printk("R14: 0x%016lx R15: 0x%016lx\n", r14, r15);
+    printk("CR0: 0x%016lx CR2: 0x%016lx CR3: 0x%016lx CR4: 0x%016lx\n", cr0, cr2, cr3, cr4);
+}
+
+
+void panic(const char *desp) {
+    // 打印堆栈跟踪
+
+    printk("\n");
+    printk("Kernel panic - not syncing: %s\n", desp);
+    dump_stack();
+    printk("--- [ end Kernel panic - not syncing: %s ] ---\n", desp);
+
+    // 永久停机
+    for (;;)
+        __asm__ volatile("hlt");
+}

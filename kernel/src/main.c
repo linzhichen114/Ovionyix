@@ -13,6 +13,7 @@
 
 #include "printk.h"
 #include "ovionyix.h"
+#include "time.h"
 
 __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(0);
 __attribute__((used, section(".limine_requests")))
@@ -32,15 +33,13 @@ void kmain(void) {
     if (framebuffer_response == NULL || framebuffer_response->framebuffer_count < 1) {
         __builtin_unreachable();
     }
-    struct limine_framebuffer *fb = framebuffer_response->framebuffers[0];  // Get the first framebuffer
 
+    struct limine_framebuffer *fb = framebuffer_response->framebuffers[0];  // Fetch the first framebuffer
+    /*================================================================================================================*/
+
+    time_init();
     printk_init(fb->address, fb->width, fb->height, fb->pitch, fb->bpp);
-    printk("Ovionyix version %s (%s version %s) #1 SMP %s %s\n", KERNL_VERS, COMPILER_NAME, COMPILER_VERSION, BUILD_DATE,
-           BUILD_TIME);
-    printk("Framebuffer %p, resolution = %dx%d\n", fb->address, fb->width, fb->height);
+    printk("Ovionyix version %s (%s version %s) #1 SMP %s %s\n", KERNL_VERS, COMPILER_NAME, COMPILER_VERSION, BUILD_DATE, BUILD_TIME);
+    printk("Framebuffer at %p, %dx%d @ %u bpp\n", fb->address, fb->width, fb->height, fb->bpp);
 
-    // Halt forever
-    for (;;) {
-        __asm__("hlt");
-    }
 }
