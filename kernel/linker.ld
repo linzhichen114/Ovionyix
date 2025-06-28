@@ -13,7 +13,7 @@ PHDRS
 SECTIONS
 {
     . = 0xffffffff80000000;
-    _kernel_start = .;
+    __kernel_start = .;
 
     .limine_requests : {
         KEEP(*(.limine_requests_start))
@@ -44,7 +44,16 @@ SECTIONS
         *(COMMON)
     } :data
 
-    _kernel_end = .;
+    /* Bitmap */
+    . = ALIGN(4096);
+    __bitmap_start = .;
+    .bitmap : {
+        /* 1MB free space */
+        . += 1 * 1024 * 1024;
+    }
+    __bitmap_end = .;
+
+    __kernel_end = .;
 
     /DISCARD/ : {
         *(.eh_frame*)

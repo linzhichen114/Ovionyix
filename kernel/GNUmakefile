@@ -10,6 +10,12 @@ CPPFLAGS :=
 NASMFLAGS := -F dwarf -g
 LDFLAGS :=
 
+ifeq ($(VERBOSE), 1)
+  QUIET=
+else
+  QUIET=@
+endif
+
 ifneq ($(shell ( test '$(MAKECMDGOALS)' = clean || test '$(MAKECMDGOALS)' = distclean ); echo $$?),0)
     ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -f src/limine.h ); echo $$?),0)
         $(error Please run the kernel/get-deps script to get dependencies first)
@@ -50,7 +56,7 @@ override CFLAGS += \
 
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
-    -I src \
+    -Isrc \
     -isystem freestnd-c-hdrs \
     $(CPPFLAGS) \
     -DLIMINE_API_REVISION=3 \
@@ -85,28 +91,34 @@ all: bin/$(OUTPUT)
 -include $(HEADER_DEPS)
 
 bin/$(OUTPUT): GNUmakefile linker.ld $(OBJ)
-	mkdir -p "$$(dirname $@)"
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $@
+	@printf "\033[1;32m(  ) Linking\033[0m ...\n"
+	$(QUIET)mkdir -p "$$(dirname $@)"
+	$(QUIET)$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $@
 
 obj/%.c.o: %.c GNUmakefile
-	mkdir -p "$$(dirname $@)"
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	@printf "\033[1;32m(  ) Compiling\033[0m $< => $@ ...\n"
+	$(QUIET)mkdir -p "$$(dirname $@)"
+	$(QUIET)$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 obj/%.S.o: %.S GNUmakefile
-	mkdir -p "$$(dirname $@)"
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	@printf "\033[1;32m(  ) Compiling\033[0m $< => $@ ...\n"
+	$(QUIET)mkdir -p "$$(dirname $@)"
+	$(QUIET)$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 obj/%.asm.o: %.asm GNUmakefile
-	mkdir -p "$$(dirname $@)"
-	nasm $(NASMFLAGS) $< -o $@
+	@printf "\033[1;32m(  ) Compiling\033[0m $< => $@ ...\n"
+	$(QUIET)mkdir -p "$$(dirname $@)"
+	$(QUIET)nasm $(NASMFLAGS) $< -o $@
 
 .PHONY: clean
 clean:
-	rm -rf bin obj
+	@rm -rf bin obj
+	@printf "\033[1;32m( √) Successful\033[0m built target $@\n"
 
 .PHONY: distclean
 distclean: clean
-	rm -rf freestnd-c-hdrs cc-runtime src/limine.h
+	@rm -rf freestnd-c-hdrs cc-runtime src/limine.h
+	@printf "\033[1;32m( √) Successful\033[0m built target $@\n"
 
 .PHONY: install
 install: all

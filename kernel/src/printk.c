@@ -403,7 +403,7 @@ void dump_registers(void) {
     __asm__ volatile("movq %%cr3, %0" : "=r"(cr3));
     __asm__ volatile("movq %%cr4, %0" : "=r"(cr4));
 
-    printk("Registers:\n");
+    printk("Registers Info:\n");
     printk("RAX: 0x%016lx RBX: 0x%016lx RCX: 0x%016lx RDX: 0x%016lx\n", rax, rbx, rcx, rdx);
     printk("RSI: 0x%016lx RDI: 0x%016lx R8:  0x%016lx R9:  0x%016lx\n", rsi, rdi, r8, r9);
     printk("R10: 0x%016lx R11: 0x%016lx R12: 0x%016lx R13: 0x%016lx\n", r10, r11, r12, r13);

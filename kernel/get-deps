@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 srcdir="$(dirname "$0")"
 test -z "$srcdir" && srcdir=.
@@ -8,6 +8,7 @@ test -z "$srcdir" && srcdir=.
 cd "$srcdir"
 
 clone_repo_commit() {
+    printf "\033[1;32m(  ) Getting\033[0m $2 from \033[1m$1\033[0m ...\n"
     if test -d "$2/.git"; then
         git -C "$2" reset --hard
         git -C "$2" clean -fd
@@ -31,6 +32,7 @@ clone_repo_commit() {
 }
 
 download_by_hash() {
+    printf "\033[1;32m(  ) Getting\033[0m $2 from \033[1m$1\033[0m ...\n"
     DOWNLOAD_COMMAND="curl -Lo"
     if ! command -v "${DOWNLOAD_COMMAND%% *}" >/dev/null 2>&1; then
         DOWNLOAD_COMMAND="wget -O"
@@ -50,7 +52,7 @@ download_by_hash() {
         fi
     fi
     if ! test -f "$2" || ! $SHA256_COMMAND "$2" | grep $3 >/dev/null 2>&1; then
-        #rm -f "$2"
+        rm -f "$2"
         mkdir -p "$2" && rm -rf "$2"
         $DOWNLOAD_COMMAND "$2" $1
         if ! $SHA256_COMMAND "$2" | grep $3 >/dev/null 2>&1; then
@@ -78,3 +80,5 @@ download_by_hash \
     https://github.com/limine-bootloader/limine/raw/4687a182be23939c2d9f15db970382dc353ed956/limine.h \
     src/limine.h \
     6879e626f34c1be25ac2f72bf43b083fc2b53887280bb0fcdaee790e258c6974
+
+printf "\033[1;32m( √) Successful\033[0m got kernel dependencies\n"

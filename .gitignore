@@ -1,5 +1,6 @@
 /limine
 /ovmf
-/Ovionyix.iso
+*.iso
+*.img
 /.vscode
 /.idea

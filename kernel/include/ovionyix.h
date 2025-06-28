@@ -11,22 +11,25 @@
 
 #define BUILD_DATE __DATE__     // Compilation Date
 #define BUILD_TIME __TIME__     // Compile time
-#define KERNL_VERS "0.0.250625" // Version format: [major version].[patch version].[YY-MM-DD]
+#define KERNL_VERS "<dev>" // Version format: [major version].[patch version].[YY-MM-DD]
 
 // Compiler judgment
 #if defined(__clang__)
-#    define COMPILER_NAME    "clang"
+#    define COMPILER_NAME    "clang (clang)"
 #    define STRINGIFY(x)     #x
 #    define EXPAND(x)        STRINGIFY(x)
 #    define COMPILER_VERSION EXPAND(__clang_major__.__clang_minor__.__clang_patchlevel__)
 #elif defined(__GNUC__)
-#    define COMPILER_NAME    "GCC"
+#    define COMPILER_NAME    "gcc (GCC)"
 #    define STRINGIFY(x)     #x
 #    define EXPAND(x)        STRINGIFY(x)
 #    define COMPILER_VERSION EXPAND(__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__)
 #else
-#    define COMPILER_NAME    "Unknown"
+#    define COMPILER_NAME    "unknown (Unknown)"
 #    define STRINGIFY(x)     #x
 #    define EXPAND(x)        STRINGIFY(x)
 #    define COMPILER_VERSION "unknown"
 #endif
+
+#define Noreturn __attribute__((noreturn))
+#define Deprecated __attribute__((__deprecated__))
