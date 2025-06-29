@@ -1,6 +1,6 @@
 /limine
 /ovmf
 *.iso
-*.img
+.kernel-deps
 /.vscode
 /.idea

@@ -74,13 +74,13 @@ limine/limine:
 		LDFLAGS="$(HOST_LDFLAGS)" \
 		LIBS="$(HOST_LIBS)"
 
-.PHONY: kernel-deps
-kernel-deps:
+.kernel-deps:
 	@printf "\033[1;32m(  ) Getting\033[0m dependencies ...\n"
 	@./kernel/get-deps
+	@touch .kernel-deps
 
 .PHONY: kernel
-kernel: kernel-deps
+kernel: .kernel-deps
 	@printf "\033[1;32m(  ) Building\033[0m $@ ...\n"
 	@$(MAKE) -C kernel
 	@printf "\033[1;32m( √) Successful\033[0m built target $@\n"
@@ -114,4 +114,4 @@ clean:
 .PHONY: distclean
 distclean: clean
 	@$(MAKE) -C kernel distclean
-	@rm -rf kernel-deps limine ovmf
+	@rm -rf .kernel-deps limine ovmf
