@@ -18,7 +18,7 @@ endif
 
 ifneq ($(shell ( test '$(MAKECMDGOALS)' = clean || test '$(MAKECMDGOALS)' = distclean ); echo $$?),0)
     ifeq ($(shell ( ! test -d freestnd-c-hdrs || ! test -d cc-runtime || ! test -f src/limine.h ); echo $$?),0)
-        $(error Please run the kernel/get-deps script to get dependencies first)
+        $(error Please get the dependencies first)
     endif
 endif
 

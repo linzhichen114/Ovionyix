@@ -63,7 +63,7 @@ static void itoa(char *buf, uint64_t num, int base) {
 
 // 绘制一个字符
 static void draw_char(char c, uint64_t x, uint64_t y) {
-    //if (c < 32 || c > 126) return;  // 只支持可打印ASCII字符
+    if (c < 32 || c > 126) return;     // Only supports printable ASCII characters
 
     const uint8_t *glyph = &ascfont[(c) * FONT_HEIGHT];
 
@@ -81,13 +81,6 @@ static void draw_char(char c, uint64_t x, uint64_t y) {
     }
 }
 
-// 绘制字符串
-static void draw_string(const char *str, uint64_t x, uint64_t y) {
-    for (size_t i = 0; str[i]; i++) {
-        draw_char(str[i], x + i * (FONT_WIDTH + 1), y);
-    }
-}
-
 // 清屏
 static void clear_screen() {
     for (uint64_t y = 0; y < fb_height; y++) {
@@ -100,14 +93,12 @@ static void clear_screen() {
 
 // 滚动屏幕
 static void scroll_screen() {
-    // 将内容向上移动一行
     for (uint64_t y = FONT_HEIGHT; y < fb_height; y++) {
         void *src = (uint8_t*)framebuffer + y * fb_pitch;
         void *dst = (uint8_t*)framebuffer + (y - FONT_HEIGHT) * fb_pitch;
         memmove(dst, src, fb_pitch);
     }
 
-    // 清除最后一行
     for (uint64_t y = fb_height - FONT_HEIGHT; y < fb_height; y++) {
         for (uint64_t x = 0; x < fb_width; x++) {
             uint32_t *pixel = (uint32_t*)((uint8_t*)framebuffer + y * fb_pitch + x * (fb_bpp / 8));
@@ -118,7 +109,6 @@ static void scroll_screen() {
     cursor_y -= FONT_HEIGHT;
 }
 
-// 初始化打印系统
 void printk_init(void *fb_addr, uint64_t width, uint64_t height, uint64_t pitch, uint16_t bpp) {
     framebuffer = (uint32_t*)fb_addr;
     fb_width = width;
@@ -133,7 +123,6 @@ void printk_init(void *fb_addr, uint64_t width, uint64_t height, uint64_t pitch,
     time_init();
 }
 
-// 打印字符串到屏幕（带自动换行）
 static void console_write(const char *str) {
     for (size_t i = 0; str[i]; i++) {
         if (str[i] == '\n') {
@@ -157,7 +146,6 @@ static void console_write(const char *str) {
     }
 }
 
-// 格式化时间戳
 static void format_timestamp(char *buf, size_t size) {
     timeval_t tv = get_current_time();
 
@@ -222,8 +210,7 @@ static void format_timestamp(char *buf, size_t size) {
     *p = '\0';
 }
 
-// 简单版的vsnprintf实现
-static void vsnprintf(char *buf, size_t size, const char *fmt, va_list args) {
+void kvsnprintf(char *buf, size_t size, const char *fmt, va_list args) {
     char *p = buf;
     char num_buf[32];
     const char *str_val;
@@ -306,30 +293,29 @@ static void vsnprintf(char *buf, size_t size, const char *fmt, va_list args) {
 
 // 核心打印函数
 void printk_va(const char *fmt, va_list args) {
-    // 格式化时间戳
+    // Format timestamp
     char timestamp_buf[32];
     format_timestamp(timestamp_buf, sizeof(timestamp_buf));
 
-    // 组合完整消息
     char full_buf[256];
     char *p = full_buf;
 
-    // 复制时间戳
+    // Copy timestamp
     for (char *s = timestamp_buf; *s; s++) {
         *p++ = *s;
     }
 
-    // 格式化用户消息
+    // Format message
     char msg_buf[200];
-    vsnprintf(msg_buf, sizeof(msg_buf), fmt, args);
+    kvsnprintf(msg_buf, sizeof(msg_buf), fmt, args);
 
-    // 复制用户消息
+    // Copy message
     for (char *s = msg_buf; *s; s++) {
         *p++ = *s;
     }
     *p = '\0';
 
-    // 输出到控制台
+    // Write to console
     console_write(full_buf);
 }
 
@@ -342,7 +328,6 @@ void printk(const char *fmt, ...) {
 }
 
 void dump_stack(void) {
-    // 定义堆栈帧结构
     struct stack_frame {
         struct stack_frame *next;
         uintptr_t rip;
@@ -351,7 +336,6 @@ void dump_stack(void) {
     struct stack_frame *rbp;
     uintptr_t rip;
 
-    // 获取当前RBP和RIP
     __asm__ volatile("movq %%rbp, %0" : "=r"(rbp));
     __asm__ volatile("leaq (%%rip), %0" : "=r"(rip));
 
@@ -360,20 +344,16 @@ void dump_stack(void) {
 
     // 最多遍历16帧
     for (int i = 0; i < 16; i++) {
-        // 检查地址有效性
         if ((uintptr_t)rbp < 0x1000 || (uintptr_t)rbp > 0xFFFFFFFFFFFFF000) {
             printk("  [<0x%016lx>] invalid frame\n", rip);
             break;
         }
 
-        // 打印当前返回地址
         printk("  [<0x%016lx>]\n", rip);
 
-        // 移动到下一帧
         rip = rbp->rip;
         rbp = rbp->next;
 
-        // 检查结束条件
         if (rip == 0 || rbp == 0) {
             break;
         }
@@ -385,7 +365,6 @@ void dump_registers(void) {
     uint64_t rax, rbx, rcx, rdx, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
     uint64_t cr0, cr2, cr3, cr4;
 
-    // 获取通用寄存器
     __asm__ volatile(
         "movq %%rax, %0; movq %%rbx, %1; movq %%rcx, %2; movq %%rdx, %3;"
         "movq %%rsi, %4; movq %%rdi, %5; movq %%r8, %6; movq %%r9, %7;"
@@ -397,13 +376,12 @@ void dump_registers(void) {
           "=r"(r14), "=r"(r15)
     );
 
-    // 获取控制寄存器
     __asm__ volatile("movq %%cr0, %0" : "=r"(cr0));
     __asm__ volatile("movq %%cr2, %0" : "=r"(cr2));
     __asm__ volatile("movq %%cr3, %0" : "=r"(cr3));
     __asm__ volatile("movq %%cr4, %0" : "=r"(cr4));
 
-    printk("Registers Info:\n");
+    // printk("REGISTERS INFO:\n");
     printk("RAX: 0x%016lx RBX: 0x%016lx RCX: 0x%016lx RDX: 0x%016lx\n", rax, rbx, rcx, rdx);
     printk("RSI: 0x%016lx RDI: 0x%016lx R8:  0x%016lx R9:  0x%016lx\n", rsi, rdi, r8, r9);
     printk("R10: 0x%016lx R11: 0x%016lx R12: 0x%016lx R13: 0x%016lx\n", r10, r11, r12, r13);

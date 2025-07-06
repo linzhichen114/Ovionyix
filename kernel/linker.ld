@@ -1,5 +1,6 @@
 OUTPUT_FORMAT(elf64-x86-64)
 
+/* kmain is the kernel entry. */
 ENTRY(kmain)
 
 PHDRS
@@ -15,6 +16,7 @@ SECTIONS
     . = 0xffffffff80000000;
     __kernel_start = .;
 
+    /* Keep Limine requests */
     .limine_requests : {
         KEEP(*(.limine_requests_start))
         KEEP(*(.limine_requests))
@@ -55,6 +57,8 @@ SECTIONS
 
     __kernel_end = .;
 
+    /* Discard .eh_frame* and .note.* because they'll causes many errors in some hosts. */
+    /* DO NOT COMMENT OR DELETE THIS!!!                                                 */
     /DISCARD/ : {
         *(.eh_frame*)
         *(.note .note.*)
